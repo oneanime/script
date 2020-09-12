@@ -1,29 +1,25 @@
 #!/bin/bash
 ################################## check evn ########################
 
-if [ ! -n "$USER" ]; then
-  echo 'USER is null'
-  exit
-fi
-
 kafka_home=$KAFKA_HOME
-user=$USER
 cluster_hosts=$(cat hostInfo/kafkahost)
 #zk_ip_port=hadoop101:2181
-bootstrap_server_hostname=$(cat hostInfo/hadoophost | awk 'NR==1')
+bootstrap_server_hostname=`echo $cluster_hosts | awk '{print $1}'`
 bootstrap_server=$bootstrap_server_hostname":9092"
+source_java="source ~/.bash_profile"
+
 #####################################################################
 case $1 in
 "start")
   for i in $cluster_hosts; do
     echo "========== $i ===kafka-start======="
-    ssh $user@$i "source /etc/profile&&$kafka_home/bin/kafka-server-start.sh -daemon $kafka_home/config/server.properties"
+    ssh $i "${source_java}&&$kafka_home/bin/kafka-server-start.sh -daemon $kafka_home/config/server.properties"
   done
   ;;
 "stop")
   for i in $cluster_hosts; do
     echo "==========$i====kafka-stop========"
-    ssh $user@$i "source /etc/profile&&$kafka_home/bin/kafka-server-stop.sh"
+    ssh $i "${source_java}&&$kafka_home/bin/kafka-server-stop.sh"
   done
   ;;
 "list")
